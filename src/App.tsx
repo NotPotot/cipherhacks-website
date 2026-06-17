@@ -18,6 +18,7 @@ import PdfViewer from './components/PdfViewer';
 import Footer from './components/Footer';
 import FaqPopup from './components/FaqPopup';
 import VulnerableSearch from './components/VulnerableSearch';
+import { CipherHacksShield } from './components/CipherHacksShield';
 import {
   EVENT_DATE,
   generateTerminalText,
@@ -1107,6 +1108,7 @@ const App: React.FC = () => {
 
 
   return (
+    <CipherHacksShield>
     <div className="min-h-screen bg-atom-bg">
       {/* Prominent Back to Home Button */}
       <RouterLink
@@ -2104,6 +2106,7 @@ const App: React.FC = () => {
 
       <Footer />
     </div>
+    </CipherHacksShield>
   );
 };
 
