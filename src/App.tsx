@@ -18,7 +18,7 @@ import PdfViewer from './components/PdfViewer';
 import Footer from './components/Footer';
 import FaqPopup from './components/FaqPopup';
 import VulnerableSearch from './components/VulnerableSearch';
-import { CipherHacksShield } from './components/CipherHacksShield';
+import { MirageProvider } from '@mirageshield/mirage/react';
 import {
   EVENT_DATE,
   generateTerminalText,
@@ -1108,7 +1108,11 @@ const App: React.FC = () => {
 
 
   return (
-    <CipherHacksShield>
+    <MirageProvider
+      protectSelectors={['[data-sensitive]', 'input[type="password"]', 'input[name*="card"]', 'input[name*="cvv"]']}
+      honeypotFields
+      behaviorTracking
+    >
     <div className="min-h-screen bg-atom-bg">
       {/* Prominent Back to Home Button */}
       <RouterLink
@@ -2106,7 +2110,7 @@ const App: React.FC = () => {
 
       <Footer />
     </div>
-    </CipherHacksShield>
+    </MirageProvider>
   );
 };
 
