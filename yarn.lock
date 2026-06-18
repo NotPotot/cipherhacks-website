@@ -2948,9 +2948,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@mirageshield/mirage@npm:^0.2.4":
-  version: 0.2.4
-  resolution: "@mirageshield/mirage@npm:0.2.4"
+"@mirageshield/mirage@npm:^0.2.5":
+  version: 0.2.5
+  resolution: "@mirageshield/mirage@npm:0.2.5"
   dependencies:
     playwright: "npm:^1.52.0"
     tsx: "npm:^4.19.0"
@@ -2968,7 +2968,7 @@ __metadata:
       optional: true
   bin:
     mirage: bin/init.mjs
-  checksum: 10c0/cd84de5d4c1908e97155f162b8c2f325ac8b42667c4223645285a37fe6f36b094e033e4be47bfc723f59e91f6b7952c19f2fa9544d09e5e878882b1784e70bc1
+  checksum: 10c0/66cb8d1d1c6edc838693057608e4d3ac222b44e4877c0605ecea10e8ba0e410e822a6bdc37142c33bce377ddb36bd1ab18db4bb91e5939b251f20848a7b1e4a1
   languageName: node
   linkType: hard
 
@@ -6036,7 +6036,7 @@ __metadata:
     "@heroicons/react": "npm:^2.2.0"
     "@hono/node-server": "npm:^2.0.5"
     "@marsidev/react-turnstile": "npm:^1.3.0"
-    "@mirageshield/mirage": "npm:^0.2.4"
+    "@mirageshield/mirage": "npm:^0.2.5"
     "@netlify/functions": "npm:^4.2.1"
     "@testing-library/dom": "npm:^10.4.0"
     "@testing-library/jest-dom": "npm:^6.6.3"
@@ -6068,6 +6068,8 @@ __metadata:
     typescript: "npm:^4.9.5"
     web-vitals: "npm:^2.1.4"
     wrangler: "npm:^4.30.0"
+  bin:
+    mirage: ./bin/mirage.js
   languageName: unknown
   linkType: soft
 

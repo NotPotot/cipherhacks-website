@@ -20,9 +20,28 @@ interface Env {
 
 const app = new Hono<{ Bindings: Env }>()
 
+let mirageServerEnabled = true
+
+app.post('/api/mirage/toggle', async (c) => {
+  const { enabled } = await c.req.json<{ enabled: boolean }>()
+  mirageServerEnabled = enabled
+  return c.json({ enabled: mirageServerEnabled })
+})
+
+app.get('/api/mirage/status', (c) => {
+  return c.json({ enabled: mirageServerEnabled })
+})
+
 app.use('*', async (c, next) => {
   const { pathname } = new URL(c.req.url)
   if (/\.(js|css|map|json|png|jpe?g|gif|svg|ico|woff2?|ttf|eot|webp)$/.test(pathname)) {
+    await next()
+    return
+  }
+
+  if (!mirageServerEnabled) {
+    c.header('X-Mirage-Score', '0')
+    c.header('X-Mirage-Action', 'disabled')
     await next()
     return
   }
