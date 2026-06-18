@@ -800,6 +800,58 @@ Packet analysis complete. Base64 encoded payloads detected.
 Experienced penetration testers know where to look... 🕵️‍♂️`
   },
   {
+    name: 'mirage',
+    description: 'Toggle Mirage Shield protection',
+    usage: '[on|off|status]',
+    action: (args) => {
+      const sub = (args[0] || '').toLowerCase();
+      const toggle = (window as any).__toggleMirage;
+      const isEnabled = () => (window as any).__mirageEnabled;
+
+      if (sub === 'status') {
+        return `🛡️ Mirage Shield Status:
+  Client Protection:  ${isEnabled() ? '✅ ACTIVE' : '❌ DISABLED'}
+  Honeypot Fields:    ${isEnabled() ? '✅ Injected' : '⬚ Inactive'}
+  Behavior Tracking:  ${isEnabled() ? '✅ Monitoring' : '⬚ Stopped'}
+  Headless Detection: ${isEnabled() ? '✅ Scanning' : '⬚ Off'}
+  Report Endpoint:    /api/cipherhacks/report
+
+  Server Middleware:  ✅ ACTIVE (Hono/Cloudflare Workers)
+  Rate Limiting:      ✅ Enabled (high sensitivity)`;
+      }
+
+      if (sub === 'on') {
+        if (isEnabled()) return '🛡️ Mirage Shield is already active.';
+        toggle(true);
+        return `🛡️ Mirage Shield ENABLED
+  ✅ Client-side protections activated
+  ✅ Honeypot fields injected
+  ✅ Behavior tracking started
+  ✅ Headless browser detection online`;
+      }
+
+      if (sub === 'off') {
+        if (!isEnabled()) return '🛡️ Mirage Shield is already disabled.';
+        toggle(false);
+        return `⚠️ Mirage Shield DISABLED
+  ❌ Client-side protections deactivated
+  ❌ Honeypot fields removed
+  ❌ Behavior tracking stopped
+  ⚠️  Server-side middleware remains active`;
+      }
+
+      return `🛡️ Mirage Shield — AI threat protection by @mirageshield/mirage
+
+Usage: mirage [on|off|status]
+
+  on      Enable client-side protection
+  off     Disable client-side protection
+  status  Show current shield status
+
+Server-side middleware (rate limiting, payload analysis) cannot be toggled from the client.`;
+    }
+  },
+  {
     name: 'cat',
     description: 'Display file contents',
     action: (args) => {

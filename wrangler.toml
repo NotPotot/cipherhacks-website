@@ -10,3 +10,8 @@ routes = [
 [assets]
 directory = "./build"
 not_found_handling = "single-page-application"
+binding = "ASSETS"
+run_worker_first = true
+
+[alias]
+"@mirageshield/mirage" = "@mirageshield/mirage/dist/index.mjs"

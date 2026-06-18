@@ -654,6 +654,17 @@ const App: React.FC = () => {
   const [isActionsMenuHovered, setIsActionsMenuHovered] = useState(false);
   const [isFaqPopupVisible, setIsFaqPopupVisible] = useState(false);
   const [faqPopupDismissed, setFaqPopupDismissed] = useState(false);
+  const [mirageEnabled, setMirageEnabled] = useState(true);
+
+  useEffect(() => {
+    (window as any).__mirageEnabled = true;
+    (window as any).__toggleMirage = (enable?: boolean) => {
+      const next = enable ?? !(window as any).__mirageEnabled;
+      (window as any).__mirageEnabled = next;
+      setMirageEnabled(next);
+      return next;
+    };
+  }, []);
 
   useEffect(() => {
     let ticking = false;
@@ -1107,13 +1118,7 @@ const App: React.FC = () => {
   }, []);
 
 
-  return (
-    <MirageProvider
-      reportEndpoint="/api/cipherhacks/report"
-      protectSelectors={['[data-sensitive]', 'input[type="password"]', 'input[name*="card"]', 'input[name*="cvv"]']}
-      honeypotFields
-      behaviorTracking
-    >
+  const content = (
     <div className="min-h-screen bg-atom-bg">
       {/* Prominent Back to Home Button */}
       <RouterLink
@@ -2111,6 +2116,18 @@ const App: React.FC = () => {
 
       <Footer />
     </div>
+  );
+
+  if (!mirageEnabled) return content;
+
+  return (
+    <MirageProvider
+      reportEndpoint="/api/cipherhacks/report"
+      protectSelectors={['[data-sensitive]', 'input[type="password"]', 'input[name*="card"]', 'input[name*="cvv"]']}
+      honeypotFields
+      behaviorTracking
+    >
+      {content}
     </MirageProvider>
   );
 };
