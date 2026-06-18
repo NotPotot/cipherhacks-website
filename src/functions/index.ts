@@ -1,5 +1,12 @@
 import { Hono } from 'hono'
 import { z } from 'zod'
+import {
+  scoreRequest,
+  analyzePayload,
+  checkRateLimit,
+  DEFAULT_SHIELD_CONFIG,
+  type RequestInfo,
+} from '@mirageshield/mirage'
 
 const goat = "supertopsecretkey6741"
 
@@ -12,6 +19,55 @@ interface Env {
 }
 
 const app = new Hono<{ Bindings: Env }>()
+
+// Mirage Shield middleware — payload injection + rate flood protection
+app.use('*', async (c, next) => {
+  const ip = c.req.header('cf-connecting-ip') || c.req.header('x-forwarded-for') || 'unknown'
+  const body = c.req.method === 'POST' ? await c.req.text() : undefined
+
+  const requestInfo: RequestInfo = {
+    ip,
+    userAgent: c.req.header('user-agent') || '',
+    headers: Object.fromEntries(c.req.raw.headers.entries()),
+    method: c.req.method,
+    url: c.req.url,
+    timestamp: Date.now(),
+    body,
+  }
+
+  const { assessment, rateLimited } = scoreRequest(
+    requestInfo,
+    DEFAULT_SHIELD_CONFIG.rateLimit,
+    'high'
+  )
+
+  c.header('X-Mirage-Score', String(assessment.score))
+  c.header('X-Mirage-Action', assessment.action)
+
+  if (assessment.action === 'block' || rateLimited) {
+    return c.json({
+      error: 'Request blocked by Mirage Shield',
+      score: assessment.score,
+      signals: assessment.signals.map(s => s.name),
+    }, 403)
+  }
+
+  if (assessment.action === 'challenge') {
+    c.header('X-Mirage-Challenge', 'true')
+  }
+
+  // Re-create request with the consumed body so downstream handlers can read it
+  if (body) {
+    const newRequest = new Request(c.req.raw.url, {
+      method: c.req.raw.method,
+      headers: c.req.raw.headers,
+      body,
+    })
+    c.req.raw = newRequest
+  }
+
+  await next()
+})
 
 const schema = z.object({
   email: z.string().email(),
@@ -61,6 +117,35 @@ app.post('/api/send-email', async (c) => {
   }
 
   return c.json({ success: true, message: 'Email sent!' })
+})
+
+// Client-side threat report endpoint (from MirageProvider)
+app.post('/api/cipherhacks/report', async (c) => {
+  const report = await c.req.json()
+  console.log('[Mirage] Client threat report:', JSON.stringify(report))
+  return c.json({ received: true })
+})
+
+// Proxy all other requests to CRA dev server (frontend)
+app.all('*', async (c) => {
+  const url = new URL(c.req.url)
+  url.port = '3000'
+  const proxyRes = await fetch(url.toString(), {
+    method: c.req.method,
+    headers: c.req.raw.headers,
+    body: c.req.method !== 'GET' && c.req.method !== 'HEAD' ? c.req.raw.body : undefined,
+    redirect: 'manual',
+  })
+  const res = new Response(proxyRes.body, {
+    status: proxyRes.status,
+    headers: proxyRes.headers,
+  })
+  // Carry Mirage headers through to the proxied response
+  const score = c.res.headers.get('X-Mirage-Score')
+  const action = c.res.headers.get('X-Mirage-Action')
+  if (score) res.headers.set('X-Mirage-Score', score)
+  if (action) res.headers.set('X-Mirage-Action', action)
+  return res
 })
 
 export default app

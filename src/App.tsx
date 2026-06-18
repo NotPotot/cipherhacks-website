@@ -1109,6 +1109,7 @@ const App: React.FC = () => {
 
   return (
     <MirageProvider
+      reportEndpoint="/api/cipherhacks/report"
       protectSelectors={['[data-sensitive]', 'input[type="password"]', 'input[name*="card"]', 'input[name*="cvv"]']}
       honeypotFields
       behaviorTracking
